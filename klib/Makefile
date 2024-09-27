@@ -1,0 +1,4 @@
+
+obj-y += \
+	syscall.o
+
