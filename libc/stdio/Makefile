@@ -17,3 +17,7 @@ obj-y += \
 	getc.o \
 	getchar.o
 
+obj-y += \
+	fread.o \
+	fwrite.o
+
