@@ -32,7 +32,7 @@ kanawha_sys_read(
 ssize_t
 kanawha_sys_write(
         fd_t file,
-        void *src,
+        const void *src,
         size_t size);
 
 ssize_t

@@ -24,6 +24,12 @@
 #define KANAWHA_SYSCALL_ID_DIRATTR   19
 #define KANAWHA_SYSCALL_ID_DIRNAME   20
 #define KANAWHA_SYSCALL_ID_FSWAP     21
+#define KANAWHA_SYSCALL_ID_MKFILE    22
+#define KANAWHA_SYSCALL_ID_MKFIFO    23
+#define KANAWHA_SYSCALL_ID_MKDIR     24
+#define KANAWHA_SYSCALL_ID_LINK      25
+#define KANAWHA_SYSCALL_ID_SYMLINK   26
+#define KANAWHA_SYSCALL_ID_UNLINK    27
 
 .global kanawha_sys_exit
 .type kanawha_sys_exit,@function
@@ -238,4 +244,67 @@ kanawha_sys_fswap:
     // rsi -> fd_t f1
     syscall
     retq
+
+.global kanawha_sys_mkfile
+.type kanawha_sys_mkfile,@function
+kanawha_sys_mkfile:
+    movq $KANAWHA_SYSCALL_ID_MKFILE, %rax
+    // rdi -> fd_t dir
+    // rsi -> const char *file_name
+    // rdx -> unsigned long flags
+    syscall
+    retq
+
+.global kanawha_sys_mkfifo
+.type kanawha_sys_mkfifo,@function
+kanawha_sys_mkfifo:
+    movq $KANAWHA_SYSCALL_ID_MKFIFO, %rax
+    // rdi -> fd_t dir
+    // rsi -> const char *fifo_name
+    // rdx -> unsigned long flags
+    syscall
+    retq
+
+.global kanawha_sys_mkdir
+.type kanawha_sys_mkdir,@function
+kanawha_sys_mkdir:
+    movq $KANAWHA_SYSCALL_ID_MKDIR, %rax
+    // rdi -> fd_t dir
+    // rsi -> const char *name
+    // rdx -> unsigned long flags
+    syscall
+    retq
+
+.global kanawha_sys_link
+.type kanawha_sys_link,@function
+kanawha_sys_link:
+    movq $KANAWHA_SYSCALL_ID_LINK, %rax
+    // rdi -> fd_t from
+    // rdi -> fd_t dir
+    // rsi -> const char *link_name
+    movq %rcx, %r8 // r8 -> unsigned long flags
+    syscall
+    retq
+
+.global kanawha_sys_symlink
+.type kanawha_sys_symlink,@function
+kanawha_sys_symlink:
+    movq $KANAWHA_SYSCALL_ID_SYMLINK, %rax
+    // rdi -> const char *sym_path
+    // rdi -> fd_t dir
+    // rsi -> const char *symlink_name
+    movq %rcx, %r8 // r8 -> unsigned long flags
+    syscall
+    retq
+
+.global kanawha_sys_unlink
+.type kanawha_sys_unlink,@function
+kanawha_sys_unlink:
+    movq $KANAWHA_SYSCALL_ID_UNLINK, %rax
+    // rdi -> fd_t dir
+    // rsi -> const char *name
+    syscall
+    retq
+
+
 

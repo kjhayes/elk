@@ -21,3 +21,9 @@ obj-y += \
 	fread.o \
 	fwrite.o
 
+obj-y += \
+	doprnt.o \
+	vfprintf.o \
+	fprintf.o \
+	printf.o
+
