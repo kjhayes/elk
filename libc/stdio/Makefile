@@ -13,6 +13,10 @@ obj-y += \
 	puts.o
 
 obj-y += \
+	fseek.o \
+	ftell.o
+
+obj-y += \
 	fgetc.o \
 	getc.o \
 	getchar.o
