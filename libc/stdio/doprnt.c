@@ -63,6 +63,7 @@ doprnt_escape_spec(
     } while(0)
 
     const char *str;
+    void *ptr;
 
     switch(conv) {
         case '%':
@@ -75,6 +76,18 @@ doprnt_escape_spec(
                 str++;
             }
             break;
+        case 'p':
+            ptr = va_arg(args, void *);
+            PUTCHAR('0');
+            PUTCHAR('x');
+            for(int i = 0; i < sizeof(ptr)*2; i++) {
+                uint8_t nibble = ((uintptr_t)ptr >> ((((sizeof(ptr)*2)-1)-i) * 4)) & 0xF;
+                if(nibble < 10) {
+                    PUTCHAR('0' + nibble);
+                } else {
+                    PUTCHAR('A' + (nibble - 10));
+                }
+            }
     }
 
     return printed;

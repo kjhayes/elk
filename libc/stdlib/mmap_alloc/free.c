@@ -11,7 +11,7 @@ void free(void *ptr)
     int res;
     void *base_ptr = (void*)((uintptr_t)ptr & ~0xFFF);
 
-    res = kanawha_sys_munmap(ptr);
+    res = kanawha_sys_munmap(ASPACE_CURRENT, ptr);
     assert(res == 0);
 }
 

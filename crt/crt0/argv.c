@@ -26,12 +26,12 @@ __elk_crt__get_argv(
     int res;
     void *region_base;
     res = kanawha_sys_mmap(
-            NULL_FD,
+            ASPACE_CURRENT,
+            0,
             0,
             &region_base,
             ARGV_REGION_SIZE,
-            MMAP_PROT_READ|MMAP_PROT_WRITE,
-            MMAP_ANON);
+            MMAP_PROT_READ|MMAP_PROT_WRITE|MMAP_ANON);
     if(res) {
         kanawha_sys_exit(res);
     }
@@ -42,7 +42,7 @@ __elk_crt__get_argv(
             ARGV_REGION_SIZE,
             ENV_GET);
     if(res == -ENXIO) {
-        kanawha_sys_munmap((void*)region_base);
+        kanawha_sys_munmap(ASPACE_CURRENT, (void*)region_base);
         *argc_out = 0;
         *argv_out = NULL;
         return;

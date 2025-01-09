@@ -27,7 +27,6 @@ FILE *fopen(
     int truncate = 0;
     int append = 0;
 
-    // TODO: Decode "mode"
     if(strchr(mode, 'r') != NULL) {
         access_flags |= FILE_PERM_READ;
     }
@@ -40,13 +39,17 @@ FILE *fopen(
 
     if(strchr(mode, 'a') != NULL) {
         can_create = 1;
-        append = 0;
+        append = 1;
         access_flags |= FILE_PERM_WRITE;
     }
 
     if(strchr(mode, '+') != NULL) {
         access_flags |= FILE_PERM_READ;
         access_flags |= FILE_PERM_WRITE;
+    }
+
+    if(truncate) {
+        mode_flags |= FILE_MODE_OPEN_TRUNC;
     }
 
     int res = kanawha_sys_open(
