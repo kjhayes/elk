@@ -9,10 +9,9 @@ KLIB_SOURCE_DIR := $(ROOT_DIR)/klib
 LIBC_SOURCE_DIR := $(ROOT_DIR)/libc
 CRT_SOURCE_DIR := $(ROOT_DIR)/crt
 
-DRIVER_DIR := $(ROOT_DIR)/drivers
-
 INCLUDE_DIR := $(ROOT_DIR)/include
 LIBC_INCLUDE_DIR := $(ROOT_DIR)/include/libc
+LINK_DIR := $(ROOT_DIR)/link
 
 SETUPS_DIR := $(ROOT_DIR)/setups
 OUTPUT_DIR := $(ROOT_DIR)/build
@@ -68,6 +67,7 @@ endif
 ARCH_SOURCE_DIR := $(ARCH_ROOT_DIR)/$(ARCH)
 
 COMMON_FLAGS += \
+				-g \
 				-D__ELK_LIBC__\
 				-I $(INCLUDE_DIR) \
 				-I $(LIBC_INCLUDE_DIR) \
@@ -77,6 +77,7 @@ COMMON_FLAGS += \
 				-fno-pie \
 				-fno-pic \
 				-nostdlib \
+				-mgeneral-regs-only \
 				-ffreestanding
 
 COMMON_DEPS += $(AUTOCONF)
@@ -85,6 +86,11 @@ AFLAGS += -D__ASSEMBLER__
 ifdef CONFIG_DEBUG_SYMBOLS
 COMMON_FLAGS += -g
 endif
+
+LDSCRIPT := $(LINK_DIR)/link.$(ARCH).ld
+
+LDFLAGS += -T $(LDSCRIPT)
+LDDEPS += $(LDSCRIPT)
 
 LDFLAGS += $(OUTPUT_DIR)/null.o
 LDDEPS += $(OUTPUT_DIR)/null.o
