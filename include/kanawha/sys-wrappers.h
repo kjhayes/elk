@@ -5,8 +5,8 @@
 #define CONFIG_X64
 
 #include "kanawha/uapi/file.h"
-#include "kanawha/uapi/stdint.h"
 #include "kanawha/uapi/process.h"
+#include "kanawha/uapi/mmap.h"
 
 __attribute__((noreturn))
 void
@@ -51,10 +51,9 @@ int
 kanawha_sys_mmap(
         fd_t file,
         size_t file_offset,
-        void *where,
+        void **where,
         size_t size,
-        unsigned long prot_flags,
-        unsigned long mmap_flags);
+        unsigned long flags);
 
 int
 kanawha_sys_munmap(
@@ -132,12 +131,6 @@ kanawha_sys_mkfile(
         unsigned long flags);
 
 int
-kanawha_sys_mkfifo(
-        fd_t dir,
-        const char *fifo_name,
-        unsigned long flags);
-
-int
 kanawha_sys_mkdir(
         fd_t dir,
         const char *name,
@@ -161,5 +154,24 @@ int
 kanawha_sys_unlink(
         fd_t dir,
         const char *name);
+
+int
+kanawha_sys_chroot(fd_t dir);
+
+int
+kanawha_sys_pipe(
+        unsigned long flags,
+        fd_t *out);
+
+int
+kanawha_sys_insmod(
+        fd_t file,
+        const char *modname,
+        unsigned long flags);
+
+int
+kanawha_sys_rmmod(
+        const char *modname,
+        unsigned long flags);
 
 #endif

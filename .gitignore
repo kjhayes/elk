@@ -54,3 +54,5 @@ dkms.conf
 build/
 .config
 .config.old
+compile_commands.json
+.cache/

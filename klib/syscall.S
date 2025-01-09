@@ -25,11 +25,16 @@
 #define KANAWHA_SYSCALL_ID_DIRNAME   20
 #define KANAWHA_SYSCALL_ID_FSWAP     21
 #define KANAWHA_SYSCALL_ID_MKFILE    22
-#define KANAWHA_SYSCALL_ID_MKFIFO    23
 #define KANAWHA_SYSCALL_ID_MKDIR     24
 #define KANAWHA_SYSCALL_ID_LINK      25
 #define KANAWHA_SYSCALL_ID_SYMLINK   26
 #define KANAWHA_SYSCALL_ID_UNLINK    27
+#define KANAWHA_SYSCALL_ID_CHROOT    28
+#define KANAWHA_SYSCALL_ID_PIPE      29
+#define KANAWHA_SYSCALL_ID_INSMOD    30
+#define KANAWHA_SYSCALL_ID_RMMOD     31
+#define KANAWHA_SYSCALL_ID_MCREATE   32
+#define KANAWHA_SYSCALL_ID_MCLOSE    33
 
 .global kanawha_sys_exit
 .type kanawha_sys_exit,@function
@@ -102,13 +107,13 @@ kanawha_sys_attr:
 .type kanawha_sys_mmap,@function
 kanawha_sys_mmap:
     movq $KANAWHA_SYSCALL_ID_MMAP, %rax
-    // rdi -> fd_t file
-    // rsi -> size_t file_offset
-    // rdx -> void * where
+    // rdi -> ad_t aspace
+    // rsi -> fd_t file
+    // rdx -> size_t file_offset
     // Need to do these backwards
-    movq %r9, %r10 // r10 -> unsigned long mmap_flags
-    movq %r8, %r9  // r9 -> unsigned long prot_flags
-    movq %rcx, %r8 // r8 -> size_t size
+    movq %r9, %r10 // r10 -> unsigned long flags
+    movq %r8, %r9  // r9 -> size_t size
+    movq %rcx, %r8 // r8 -> void **where
     syscall
     retq
 
@@ -116,7 +121,8 @@ kanawha_sys_mmap:
 .type kanawha_sys_munmap,@function
 kanawha_sys_munmap:
     movq $KANAWHA_SYSCALL_ID_MUNMAP, %rax
-    // rdi -> void * mapping
+    // rdi -> ad_t aspace
+    // rsi -> void * mapping
     syscall
     retq
 
@@ -255,16 +261,6 @@ kanawha_sys_mkfile:
     syscall
     retq
 
-.global kanawha_sys_mkfifo
-.type kanawha_sys_mkfifo,@function
-kanawha_sys_mkfifo:
-    movq $KANAWHA_SYSCALL_ID_MKFIFO, %rax
-    // rdi -> fd_t dir
-    // rsi -> const char *fifo_name
-    // rdx -> unsigned long flags
-    syscall
-    retq
-
 .global kanawha_sys_mkdir
 .type kanawha_sys_mkdir,@function
 kanawha_sys_mkdir:
@@ -306,5 +302,39 @@ kanawha_sys_unlink:
     syscall
     retq
 
+.global kanawha_sys_chroot
+.type kanawha_sys_chroot,@function
+kanawha_sys_chroot:
+    movq $KANAWHA_SYSCALL_ID_CHROOT, %rax
+    // rdi -> fd_t dir
+    syscall
+    retq
 
+.global kanawha_sys_pipe
+.type kanawha_sys_pipe,@function
+kanawha_sys_pipe:
+    movq $KANAWHA_SYSCALL_ID_PIPE, %rax
+    // rdi -> unsigned long flags
+    // rsi -> fd_t *out
+    syscall
+    retq
+
+.global kanawha_sys_insmod
+.type kanawha_sys_insmod,@function
+kanawha_sys_insmod:
+    movq $KANAWHA_SYSCALL_ID_INSMOD, %rax
+    // rdi -> fd_t file
+    // rsi -> const char *modname
+    // rdx -> unsigned long flags
+    syscall
+    retq
+
+.global kanawha_sys_rmmod
+.type kanawha_sys_rmmod,@function
+kanawha_sys_rmmod:
+    movq $KANAWHA_SYSCALL_ID_RMMOD, %rax
+    // rdi -> const char *modname
+    // rsi -> unsigned long flags
+    syscall
+    retq
 

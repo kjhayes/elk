@@ -1,7 +1,6 @@
 
-// 8 MiB Stack
-#define STACK_TOP 0x1000000
-#define STACK_SIZE 0x1000000
+// 2 MiB Stack
+#define STACK_SIZE 0x200000
 
 .text
 .code64
@@ -18,29 +17,24 @@ _start:
 // mmap An Anonymous Stack
     movq $7, %rax // mmap
     movq $0, %rdi // NULL_FD
-    movq $0, %rdi // file_offset
+    movq $0, %rsi // file_offset
 
-    movq __num_stacks, %rcx
-    imulq $STACK_SIZE, %rcx, %rdx
-    addq $STACK_TOP, %rdx
-    movq %rdx, __mmap_where
+    // Pass in a pointer to __mmap_where to stash the address of our stack
     movabsq $__mmap_where, %rdx
 
-    movq %rdx, %rsp
-    addq $STACK_SIZE, %rsp
-
     movq $STACK_SIZE, %r8 // size
-    movq $(0b11), %r9 // MMAP_PROT_READ|MMAP_PROT_WRITE
-    movq $(0b10), %r10 // MMAP_ANON
-    orq $(1ULL<<2), %r10 // MMAP_EXACT
+    movq $(0b10), %r9 // MMAP_ANON
+    orq $(1ULL<<3), %r9 // MMAP_PROT_READ
+    orq $(1ULL<<4), %r9 // MMAP_PROT_WRITE
     syscall
 
     testq %rax, %rax
     jnz __do_fail_exit
- 
-    movq __num_stacks, %rcx
-    addq $1, %rcx
-    movq %rcx, __num_stacks
+
+    // set the stack pointer
+    movq __mmap_where, %r8
+    addq $STACK_SIZE, %r8
+    movq %r8, %rsp
 
     // Setup stdout, stdin and stderr
     callq __elk_crt__init_stdstreams
@@ -86,39 +80,24 @@ _thread_start:
     // mmap An Anonymous Stack
     movq $7, %rax // mmap
     movq $0, %rdi // NULL_FD
-    movq $0, %rdi // file_offset
+    movq $0, %rsi // file_offset
 
-    // Grab the stack lock
-__thread_start_stack_spin_lock:
-    movq $1, %rcx
-    lock xchg __stack_lock, %rcx
-    testq %rcx, %rcx
-    jnz __thread_start_stack_spin_lock
-
-    movq __num_stacks, %rcx
-    imulq $STACK_SIZE, %rcx, %rdx
-    addq $STACK_TOP, %rdx
- 
-    movq %rdx, %rsp
-    addq $STACK_SIZE, %rsp
-
-    movq %rdx, __mmap_where
-    movabsq $__mmap_where, %rdx// where
+    movabsq $__mmap_where, %rdx // where
 
     movq $STACK_SIZE, %r8 // size
-    movq $(0b11), %r9 // MMAP_PROT_READ|MMAP_PROT_WRITE
-    movq $(0b10), %r10 // MMAP_ANON
+    movq $(0b10), %r9 // MMAP_ANON
+    orq $(1ULL<<3), %r9 // MMAP_PROT_READ
+    orq $(1ULL<<4), %r9 // MMAP_PROT_WRITE
     syscall
 
     testq %rax, %rax
     jnz __thread_start_stack_map_fail 
 
-    movq __num_stacks, %rcx
-    addq $1, %rcx
-    movq %rcx, __num_stacks
+    // set up the thread stack
+    movq __mmap_where, %r8
+    addq $STACK_SIZE, %r8
+    movq %r8, %rsp
 
-    movq $0, __stack_lock
-   
     subq $8, %rsp
 
     callq *%rbx
@@ -130,7 +109,6 @@ __thread_start_stack_spin_lock:
     syscall
 
 __thread_start_stack_map_fail:
-    movq $0, __stack_lock
     movq %rax, %rdi // exitcode of mmap
     movq $0, %rax
     syscall
@@ -138,10 +116,5 @@ __thread_start_stack_map_fail:
 .section .data
 
 __mmap_where:
-.quad 0
-
-__stack_lock:
-.quad 0
-__num_stacks:
 .quad 0
 

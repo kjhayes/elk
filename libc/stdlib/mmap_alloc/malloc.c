@@ -1,7 +1,6 @@
 
 #include "kanawha/sys-wrappers.h"
 #include "kanawha/uapi/mmap.h"
-#include "kanawha/uapi/file.h"
 
 #include <stddef.h>
 
@@ -18,12 +17,11 @@ void *malloc(size_t size)
     }
 
     res = kanawha_sys_mmap(
-            NULL_FD,
-            0,
+            0, // No file
+            0, // No file offset
             &addr,
             alloc_size,
-            MMAP_PROT_READ|MMAP_PROT_WRITE,
-            MMAP_ANON);
+            MMAP_PROT_READ|MMAP_PROT_WRITE|MMAP_ANON);
     if(res) {
         return NULL;
     }

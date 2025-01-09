@@ -26,12 +26,11 @@ __elk_crt__get_argv(
     int res;
     void *region_base;
     res = kanawha_sys_mmap(
-            NULL_FD,
+            0,
             0,
             &region_base,
             ARGV_REGION_SIZE,
-            MMAP_PROT_READ|MMAP_PROT_WRITE,
-            MMAP_ANON);
+            MMAP_PROT_READ|MMAP_PROT_WRITE|MMAP_ANON);
     if(res) {
         kanawha_sys_exit(res);
     }
